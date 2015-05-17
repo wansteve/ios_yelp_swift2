@@ -13,7 +13,7 @@ import UIKit
 }
 
 
-class SwitchCell: UITableViewCell {
+class SwitchCell: UITableViewCell { // new comments
 
     @IBOutlet weak var switchLabel: UILabel!
     
