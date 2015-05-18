@@ -12,21 +12,35 @@ import UIKit
 // convention for protocol is class name followed by the word delegate
 // when the search button in the filters page is hit, pass back to the business page???
 // this is to declare the delegate
+
+
 @objc protocol FiltersViewControllerDelegate {
     optional func filtersViewController (filtersViewController: FiltersViewController, didUpdateFilters filters: [String:AnyObject])
     
     // filtersViewController is firing the event, and pass back didUpdateFilters
     // it is optional func, because if someone wants to implement it, great, otherwise, not required
     // filters is the local parameter name
+}
 
+
+/* next step
+@objc protocol FiltersViewControllerDelegate {
+    optional func filtersViewController (filtersViewController: FiltersViewController, didUpdateFilters filters: [String:AnyObject], deal:Bool, radius:Int, sort:Int)
     
 }
+next step */
 
 class FiltersViewController: UIViewController, UITableViewDataSource, UITableViewDelegate, SwitchCellDelegate {
 
     @IBOutlet weak var tableView: UITableView!
     // now going to have a delegate in response to the protocol FilterViewControllerDelegate
     weak var delegate: FiltersViewControllerDelegate? // ? is for optional, a delegate of type FiltersViewController
+    
+    // next step
+    var isExpended: [Int:Bool]! = [Int:Bool]()
+    var selectedDistance = 0
+    var selectedSort = 0
+    //
     
     var categories: [[String:String]]!
     var switchStates = [Int:Bool]()
@@ -37,8 +51,12 @@ class FiltersViewController: UIViewController, UITableViewDataSource, UITableVie
         categories = yelpCategories()
         tableView.delegate = self
         tableView.dataSource = self
-
+        tableView.rowHeight = UITableViewAutomaticDimension
+        tableView.estimatedRowHeight = 120
+        
         // Do any additional setup after loading the view.
+        
+        
     }
 
     override func didReceiveMemoryWarning() {
@@ -52,6 +70,21 @@ class FiltersViewController: UIViewController, UITableViewDataSource, UITableVie
 
     @IBAction func onSearchButton(sender: AnyObject) {
         dismissViewControllerAnimated(true, completion: nil)
+        
+        // next step
+        var deal = tableView.cellForRowAtIndexPath(NSIndexPath(forRow: 0, inSection: 0))
+        
+        println ("DDeal is \(deal)")
+        var radius = -1
+        if selectedDistance == 0 {
+            radius = -1
+        } else if selectedDistance == 1 {
+            radius = 1
+        } else {
+            radius = 5
+        }
+        // next step
+    
         
         // inside this onSearchButton method, if delegate does exist, then call filtersViewController method and pass back myself and figure something out to pass back, e.g. filters
         var filters = [String : AnyObject]() // this is somewhat arbitrary
@@ -68,14 +101,66 @@ class FiltersViewController: UIViewController, UITableViewDataSource, UITableVie
             filters["categories"] = selectedCategories
         }
         
-        delegate?.filtersViewController?(self, didUpdateFilters: filters) // this is calling the delegate event
+        delegate?.filtersViewController?(self, didUpdateFilters: filters) // safe1: this is calling the delegate event
+        // delegate?.filtersViewController?(self, didUpdateFilters: filters, deal: deal.onSwitch.on, radius: radius, sort: selectedSort)
+        // delegate?.filtersViewController?(self, didUpdateFilters: filters, deal: true, radius: radius, sort: selectedSort)
     }
     
+    //next step: new
+    func numberOfSectionsInTableView(tableView: UITableView) -> Int {
+        return 4
+    }
+       
+    /* next step old
     func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return categories.count
     }
-
+    */
     
+    //next step: new
+    func tableView(tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
+        var headerView = UIView(frame: CGRectMake(0, 0, 320, 40))
+        var headerLabel = UILabel(frame: CGRectMake(10, 2, 320, 40))
+        headerLabel.textColor = UIColor.grayColor()
+        if section == 0 {
+            // headerLabel.text = "Deal"
+            headerLabel.text = ""
+        }
+        else if section == 1 {
+            headerLabel.text = "Distance"
+        }
+        else if section == 2 {
+            headerLabel.text = "Sort by"
+        }
+        else {
+            headerLabel.text = "Categories"
+        }
+        headerView.addSubview(headerLabel)
+        
+        return headerView
+    }
+ 
+    //next step -- new
+    func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        if section == 1 || section == 2 {
+            if let expanded = isExpended[section] {
+                return expanded ? 3 : 1
+            } else {
+                return 1
+            }
+        }
+        else if section == 3 {
+            if let expended = isExpended[section] {
+                return expended ? 5 : 4
+            } else {
+                return categories.count
+            }
+        }
+        return 1
+    }
+    
+    
+    /* next step: orginal: the following is where the cell gets populated
     func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCellWithIdentifier("SwitchCell", forIndexPath: indexPath) as!SwitchCell
         
@@ -88,6 +173,83 @@ class FiltersViewController: UIViewController, UITableViewDataSource, UITableVie
         return cell
         
     }
+next step: original */
+
+
+    func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
+        if indexPath.section == 0 {
+            var cell = tableView.dequeueReusableCellWithIdentifier("SwitchCell") as! SwitchCell
+            
+            cell.switchLabel.text = "Offering a Deal"
+            cell.delegate  = self
+            cell.onSwitch.on = switchStates[indexPath.row] ?? false
+            
+            return cell
+        }
+            
+        else if indexPath.section == 1 {
+            var cell = tableView.dequeueReusableCellWithIdentifier("SwitchCell") as! SwitchCell
+            
+            var rowIndex = 0
+            
+            cell.switchLabel.text = "Auto"
+            cell.delegate  = self
+            cell.onSwitch.on = switchStates[indexPath.row] ?? false
+            
+            /*  next step: this needs to be fixed
+            if rowIndex == 0 {
+                cell.distanceLabel.text = "Auto"
+            }
+            else if rowIndex == 1 {
+                cell.distanceLabel.text = "1 meter"
+            }
+            else {
+                cell.distanceLabel.text = "5 meters"
+            }
+            */
+            
+            return cell
+        } // indexPath.section == 1
+            
+        else if indexPath.section == 2 {
+            var cell = tableView.dequeueReusableCellWithIdentifier("SwitchCell") as! SwitchCell
+            
+            var rowIndex = 0
+            cell.switchLabel.text = "Distance"
+            cell.delegate  = self
+            cell.onSwitch.on = switchStates[indexPath.row] ?? false
+            
+            
+            /*  this needs to be fixed
+            if rowIndex == 0 {
+                cell.sortedLabel.text = "Best Matched"
+            }
+            else if rowIndex == 1 {
+                cell.sortedLabel.text = "Distance"
+            }
+            else {
+                cell.sortedLabel.text = "Highest Rated"
+            }
+            */
+            
+            return cell
+        }
+            
+        else  {
+            
+            let cell = tableView.dequeueReusableCellWithIdentifier("SwitchCell", forIndexPath: indexPath) as!SwitchCell
+            
+            cell.switchLabel.text = categories[indexPath.row]["name"]
+            cell.delegate  = self
+            
+            
+            // if switchStates[indexPath.row] != NIL, set it to me, otherwise set to false
+            cell.onSwitch.on = switchStates[indexPath.row] ?? false
+            return cell
+            
+        }
+    }
+    
     
     func switchCell(switchCell: SwitchCell, didChangeValue value: Bool) {
         let indexPath = tableView.indexPathForCell(switchCell)!

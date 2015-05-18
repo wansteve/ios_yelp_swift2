@@ -143,11 +143,13 @@ class BusinessesViewController: UIViewController, UITableViewDataSource, UITable
         var categories = filters["categories"] as? [String]
         
         //Business.searchWithTerm("Restaurants", sort: .Distance, categories: ["asianfusion", "burgers"], deals: true) { (businesses: [Business]!, error: NSError!) -> Void in
-        // var deals = filters["deals"] as? bool
-        // var sort = filters["sort") as? [String]
+         // var deals = filters["deals"] as? Bool
+         // var sort = filters["sort") as? [String]
         
+        //         Business.searchWithTerm("Restaurants", sort: nil, categories: categories, deals: nil) {(businesses: [Business]!, error: NSError!) -> Void in
+
         
-        Business.searchWithTerm("Restaurants", sort: nil, categories: categories, deals: nil) {(businesses: [Business]!, error: NSError!) -> Void in
+        Business.searchWithTerm("Restaurants", sort: .Distance, categories: categories, deals: nil) {(businesses: [Business]!, error: NSError!) -> Void in
         self.businesses = businesses
         self.tableView.reloadData()
 

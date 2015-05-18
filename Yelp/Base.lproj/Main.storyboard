@@ -171,6 +171,8 @@
                                                 <constraint firstAttribute="centerY" secondItem="Udw-rx-DNH" secondAttribute="centerY" id="JvI-l5-RP0"/>
                                                 <constraint firstItem="eLc-Im-gsj" firstAttribute="leading" secondItem="bIX-jH-Uiy" secondAttribute="leading" constant="14" id="WY9-qe-01a"/>
                                                 <constraint firstAttribute="centerY" secondItem="eLc-Im-gsj" secondAttribute="centerY" id="bLc-4f-XgE"/>
+                                                <constraint firstAttribute="bottom" relation="greaterThanOrEqual" secondItem="eLc-Im-gsj" secondAttribute="bottom" constant="10" id="vGg-kg-f51"/>
+                                                <constraint firstItem="eLc-Im-gsj" firstAttribute="top" relation="greaterThanOrEqual" secondItem="bIX-jH-Uiy" secondAttribute="top" constant="10" id="zdS-Ve-kpH"/>
                                             </constraints>
                                         </tableViewCellContentView>
                                         <connections>
