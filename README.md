@@ -31,5 +31,4 @@ Time spent: `<28>`
 
 ### Walkthrough
 
-![Video Walkthrough](ios_yelp_swift_demo1.gif):
 ![Video Walkthrough](ios_yelp_swift_demo5.gif):
